@@ -1,78 +1,100 @@
-import { Component } from 'react';
-import './randomChar.scss';
-import mjolnir from '../../resources/img/mjolnir.png';
-import MarvelService from '../../services/MarvelService';
+import { Component } from "react";
+import "./randomChar.scss";
+import mjolnir from "../../resources/img/mjolnir.png";
+import Spinner from "../spinner/Spinner";
+import ErrorMessage from "../errorMessage/ErrorMessage";
+import MarvelService from "../../services/MarvelService";
 
 class RandomChar extends Component {
-    constructor(props) {
-        super(props);
-        this.updateChar();
+  constructor(props) {
+    super(props);
+    this.updateChar();
+  }
+
+  state = {
+    char: {},
+    loading: true,
+    error: false,
+  };
+
+  marvelService = new MarvelService();
+
+  onCharLoaded = (char) => {
+    if (!char.description) {
+      char.description = "We don't have a description of this character :C";
     }
 
-    state = {
-        char: {}
+    if (char.description.length > 150) {
+      const str = char.description;
+      char.description = str.substring(0, 149) + "...";
     }
 
-    marvelService = new MarvelService();
+    this.setState({
+      char: char,
+      loading: false,
+    });
+  };
 
-    onCharLoaded = (char) => {
-        if (!char.description) {
-            char.description = 'Unknown hero'
-        }
+  onError = () => {
+    this.setState({
+      loading: false,
+      error: true,
+    });
+  };
 
-        if (char.description.length > 150) {
-            const str = char.description;
-            char.description = str.substring(0, 149) + '...';
-        }
+  updateChar = () => {
+    const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
+    this.marvelService.getCharacter(id).then(this.onCharLoaded).catch(this.onError);
+  };
 
-        this.setState({char: char})
-    }
+  render() {
+    const { char, loading, error } = this.state;
+    const errorMessage = error ? <ErrorMessage /> : null;
+    const spinner = loading ? <Spinner /> : null;
+    const content = !(loading || error) ? <View char={char} /> : null;
 
-    updateChar = () => {
-        const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-        this.marvelService
-            .getCharacter(id)
-            .then(this.onCharLoaded)
-    }
-
-    render() {
-        const {char: {name, description, thumbnail, homepage, wiki}} = this.state;
-
-        return (
-            <div className="randomchar">
-                <div className="randomchar__block">
-                    <img src={thumbnail} alt="Random character" className="randomchar__img"/>
-                    <div className="randomchar__info">
-                        <p className="randomchar__name">{name}</p>
-                        <p className="randomchar__descr">
-                            {description}
-                        </p>
-                        <div className="randomchar__btns">
-                            <a href={homepage} className="button button__main">
-                                <div className="inner">homepage</div>
-                            </a>
-                            <a href={wiki} className="button button__secondary">
-                                <div className="inner">Wiki</div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div className="randomchar__static">
-                    <p className="randomchar__title">
-                        Random character for today!<br/>
-                        Do you want to get to know him better?
-                    </p>
-                    <p className="randomchar__title">
-                        Or choose another one
-                    </p>
-                    <button className="button button__main">
-                        <div className="inner">try it</div>
-                    </button>
-                    <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
-                </div>
-            </div>
-        )
-    }
+    return (
+      <div className="randomchar">
+        {errorMessage}
+        {spinner}
+        {content}
+        <div className="randomchar__static">
+          <p className="randomchar__title">
+            Random character for today!
+            <br />
+            Do you want to get to know him better?
+          </p>
+          <p className="randomchar__title">Or choose another one</p>
+          <button className="button button__main">
+            <div className="inner">try it</div>
+          </button>
+          <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
+        </div>
+      </div>
+    );
+  }
 }
+
+const View = ({ char }) => {
+  const { name, description, thumbnail, homepage, wiki } = char;
+
+  return (
+    <div className="randomchar__block">
+      <img src={thumbnail} alt="Random character" className="randomchar__img" />
+      <div className="randomchar__info">
+        <p className="randomchar__name">{name}</p>
+        <p className="randomchar__descr">{description}</p>
+        <div className="randomchar__btns">
+          <a href={homepage} className="button button__main">
+            <div className="inner">homepage</div>
+          </a>
+          <a href={wiki} className="button button__secondary">
+            <div className="inner">Wiki</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default RandomChar;
