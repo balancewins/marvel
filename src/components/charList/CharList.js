@@ -14,9 +14,14 @@ class CharList extends Component {
   marvelService = new MarvelService();
 
   componentDidMount() {
-    const offset = Math.floor(Math.random() * (1500 - 1 + 1) - 1);
-    this.marvelService.getAllCharacters(offset).then(this.onCharListLoaded).catch(this.onError);
+    // const offset = Math.floor(Math.random() * (1500 - 1 + 1) - 1);
+    // this.marvelService.getAllCharacters(offset).then(this.onCharListLoaded).catch(this.onError);
+    this.onRequest();
   }
+
+  onRequest = (offset) => {
+    this.marvelService.getAllCharacters(offset).then(this.onCharListLoaded).catch(this.onError);
+  };
 
   onCharListLoaded = (charList) => {
     this.setState({
