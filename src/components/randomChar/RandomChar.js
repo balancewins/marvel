@@ -28,6 +28,7 @@ class RandomChar extends Component {
     this.setState({
       char,
       loading: false,
+      error: false
     });
   };
 
