@@ -58,8 +58,11 @@ const CharList = (props) => {
           tabIndex={0}
           ref={(el) => (itemRefs.current[i] = el)}
           key={item.id}
-          onClick={() => props.onCharSelected(item.id)}
-          onKeyPress={(e) => {
+          onClick={() => {
+            props.onCharSelected(item.id);
+            focusOnItem(i);
+          }}
+          onKeyDown={(e) => {
             if (e.key === " " || e.key === "Enter") {
               props.onCharSelected(item.id);
               focusOnItem(i);
